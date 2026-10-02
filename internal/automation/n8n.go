@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	lead "lead-automation/internal/lead/model"
 	"net/http"
 )
 
@@ -26,7 +28,7 @@ type LeadQualifiedEvent struct {
 
 func (n *N8N) SendLeadQualified(
 	ctx context.Context,
-	event LeadQualifiedEvent,
+	event lead.Qualification,
 ) error {
 
 	body, err := json.Marshal(event)
@@ -56,5 +58,7 @@ func (n *N8N) SendLeadQualified(
 		return nil // we'll improve error handling later
 	}
 
+
+	fmt.Println("__________web hook is successfuly___________")
 	return nil
 }

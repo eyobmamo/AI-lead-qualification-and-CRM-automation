@@ -52,7 +52,7 @@ Message: %s
 Budget: %.2f
 Timeline: %s
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON:
 
 {
   "score": 0,
@@ -63,7 +63,9 @@ Return ONLY valid JSON in this exact format:
 
 Rules:
 - score must be between 0 and 100
-- category must be HOT, WARM, or COLD
+- category must be exactly HOT, WARM, or COLD
+- summary must be short
+- recommended_action must be short
 - Do not include markdown or extra text.
 `,
 		l.Name,
@@ -104,9 +106,13 @@ Rules:
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("ollama returned status %d", resp.StatusCode)
+		return nil, fmt.Errorf(
+			"ollama returned status %d",
+			resp.StatusCode,
+		)
 	}
 
+	// Collect streamed response
 	var result strings.Builder
 
 	scanner := bufio.NewScanner(resp.Body)
@@ -115,7 +121,10 @@ Rules:
 		var chunk OllamaResponseChunk
 
 		if err := json.Unmarshal(scanner.Bytes(), &chunk); err != nil {
-			return nil, fmt.Errorf("invalid ollama response: %w", err)
+			return nil, fmt.Errorf(
+				"invalid ollama response: %w",
+				err,
+			)
 		}
 
 		result.WriteString(chunk.Response)
@@ -129,23 +138,38 @@ Rules:
 		return nil, err
 	}
 
+	// Get final AI response
+	response := strings.TrimSpace(result.String())
+
+	// Remove Markdown code fences if the model adds them.
+	response = strings.TrimPrefix(response, "```json")
+	response = strings.TrimPrefix(response, "```")
+	response = strings.TrimSuffix(response, "```")
+	response = strings.TrimSpace(response)
+
+	// Convert JSON into our Go struct.
 	var qualification lead.Qualification
 
 	if err := json.Unmarshal(
-		[]byte(strings.TrimSpace(result.String())),
+		[]byte(response),
 		&qualification,
 	); err != nil {
 		return nil, fmt.Errorf(
 			"failed to parse qualification: %w; response=%q",
 			err,
-			result.String(),
+			response,
 		)
 	}
 
+	// Validate score.
 	if qualification.Score < 0 || qualification.Score > 100 {
-		return nil, fmt.Errorf("invalid qualification score")
+		return nil, fmt.Errorf(
+			"invalid qualification score: %d",
+			qualification.Score,
+		)
 	}
 
+	// Validate category.
 	switch qualification.Category {
 	case "HOT", "WARM", "COLD":
 	default:
@@ -157,3 +181,4 @@ Rules:
 
 	return &qualification, nil
 }
+

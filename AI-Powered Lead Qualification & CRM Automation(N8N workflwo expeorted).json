@@ -1,0 +1,205 @@
+      {
+  "name": "AI-Powered Lead Qualification & CRM Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "83798322-c9ef-4021-84bd-f363567ca7b7",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        -96
+      ],
+      "id": "e9e553b9-c443-43a0-8fa1-009622ae5af8",
+      "name": "Webhook",
+      "webhookId": "83798322-c9ef-4021-84bd-f363567ca7b7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ef19a081-cac6-464c-8218-48029613e0c5",
+              "leftValue": "HOTt",
+              "rightValue": "={{ $json.body.category }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "04552f78-ca05-402b-abd7-17d4e273d334",
+              "leftValue": "={{ $json.body.score }}",
+              "rightValue": 100,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "3b1ceeed-4ffd-490f-8182-5ffe93615838",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -304,
+        -96
+      ],
+      "id": "d1d7bd6a-3c29-4ce1-92cf-55556770a09e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are a professional B2B sales email assistant.\n\nCreate a personalized email draft for the sales representative based on the lead information below.\n\nLead:\n\nEmail: {{ $json.lead.email }}\n\n\nQualification:\nScore: {{ $('Webhook').item.json.body.score }}\nCategory: {{ $('Webhook').item.json.body.category }}\nSummary: {{ $('Webhook').item.json.body.summary }}\nRecommended Action: {{ $('Webhook').item.json.body.recommended_action }}\n\nYour task:\n- Write a professional and natural B2B follow-up email.\n- Personalize it using the lead's message.\n- Do not invent information about the company.\n- Keep it concise.\n- Follow the recommended action.\n- This is a DRAFT for a salesperson to review.\n- Do not send the email.\n\nReturn ONLY valid JSON in exactly this format:\n\n{\n  \"subject\": \"Email subject\",\n  \"body\": \"Email body\"\n}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        32,
+        -144
+      ],
+      "id": "2ad12327-f068-4427-9e66-27ac33e57cf1",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst text = $json.output?.[0]?.content?.[0]?.text;\n\nif (!text) {\n  throw new Error(\"AI response text not found\");\n}\n\nlet email;\n\ntry {\n  email = JSON.parse(text);\n} catch (error) {\n  throw new Error(`Failed to parse AI response: ${error.message}`);\n}\n\nif (!email.subject || !email.body) {\n  throw new Error(\"AI response must contain subject and body\");\n}\n\nreturn [\n  {\n    json: {\n      subject: email.subject,\n      body: email.body\n    }\n  }\n];\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -144
+      ],
+      "id": "bc17c313-9424-43e7-aeee-28f286667cc9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {
+          "sendTo": "eyobmamo25@gmail.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        -128
+      ],
+      "id": "af808ab7-a1ab-412d-907e-9ae362243641",
+      "name": "Create a draft",
+      "webhookId": "2e55e8f2-b889-4636-b6ce-05959f29436b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZlnPDVj0An8vYnhj",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7ff26fc3-bd2b-4cea-87e4-3638333ed96b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7e294f79453baba20221277f67e7144d40e966874534084d338b28f42718bfdd"
+  },
+  "nodeGroups": [],
+  "id": "c8qzmpexto1pJ2Ue",
+  "tags": []
+}

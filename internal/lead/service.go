@@ -2,11 +2,11 @@ package lead
 
 import (
 	"context"
+	"fmt"
 
 	"lead-automation/internal/ai"
 	"lead-automation/internal/automation"
 	lead "lead-automation/internal/lead/model"
-
 )
 
 type Service struct {
@@ -39,9 +39,22 @@ func (s *Service) CreateLead(
 
 	// 2. AI qualification will come here.
 	// qualification, err := s.ai.Qualify(ctx, l)
-	
-	// 3. Send event to n8n.
-	// err = s.n8n.SendLeadQualified(...)
+		qualification, err := s.ai.Qualify(ctx, *l)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
 
+	fmt.Println(qualification)
+
+
+
+	// 3. Send event to n8n.
+	err = s.n8n.SendLeadQualified(ctx,*qualification)
+	if err != nil {
+		return nil,err
+	}
+
+    fmt.Println("complited with out error")
 	return l, nil
 }
