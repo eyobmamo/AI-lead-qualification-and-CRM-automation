@@ -1,0 +1,24 @@
+                  AI lead qualifaicatin and CRM automation
+
+so as first phase i will build like 
+     input --> qualify --> save --> notif
+
+for example :
+    1. a person submin :
+        email
+        like form with name ,email,compnay ,discriptn like that detail  
+        2.i make go backend handle this lead
+        3.seve it in db 
+        4.then send the infor to an llm 
+        5.AI returns structred informaion
+    
+    6. store the AI result
+    7. send a notficatino to the salespersons 
+
+    for archetection like i us en8n for the notficaion/automaion layer and go for the core backend
+    dont let n8n replace you backdnd ,let go own the bussiness dat and API.let n8n orchestrate things like email ,CRM ,slack and follow ups.
+          v1. archeitecute  
+
+    the actual bussiness flwo  
+
+    thre is customer /websire --> Lead form --> go api --> postgresQa --> AI Qualification --> go decideds hot /wahrm /cold --> n8n woebhook --> email ,crm 
