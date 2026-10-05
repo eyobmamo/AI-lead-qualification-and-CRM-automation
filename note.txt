@@ -3,6 +3,31 @@
 so as first phase i will build like 
      input --> qualify --> save --> notif
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 for example :
     1. a person submin :
         email
