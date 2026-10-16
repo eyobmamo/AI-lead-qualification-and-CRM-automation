@@ -20,7 +20,7 @@ func main() {
 	ctx := context.Background()
 	if err := godotenv.Load(); err != nil {
     log.Println("Warning: .env file not found")
-}
+	}   
 		databaseURL := os.Getenv("DATABASE_URL")
 		if databaseURL == "" {
 			log.Fatal("DATABASE_URL is required")
@@ -48,7 +48,6 @@ func main() {
 		qualifier,
 		n8n,
 	)
-
 	leadHandler := lead.NewHandler(leadService)
 
 	router := chi.NewRouter()

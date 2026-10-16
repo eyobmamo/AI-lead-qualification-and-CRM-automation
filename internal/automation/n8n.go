@@ -33,6 +33,8 @@ func (n *N8N) SendLeadQualified(
 
 	body, err := json.Marshal(event)
 	if err != nil {
+			fmt.Println("__________sendleadQualified email error___________")
+
 		return err
 	}
 
@@ -42,7 +44,10 @@ func (n *N8N) SendLeadQualified(
 		n.webhookURL,
 		bytes.NewReader(body),
 	)
+	fmt.Printf("webhookUrl: %v",n.webhookURL)
 	if err != nil {
+			fmt.Println("__________request dosent comen correclty to after call___________")
+
 		return err
 	}
 
@@ -50,14 +55,22 @@ func (n *N8N) SendLeadQualified(
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		fmt.Println("__________callein http error___________")
+
 		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 300 {
+
+		fmt.Println("-----------------------------------------")
+		fmt.Println(resp) 
+		fmt.Println("-----------------------------------------")
+
+		fmt.Println("__________error status___________")
+
 		return nil // we'll improve error handling later
 	}
-
 
 	fmt.Println("__________web hook is successfuly___________")
 	return nil

@@ -5,6 +5,33 @@ so as first phase i will build like
 
 
 
+     this is a custome curl for the inoming eamil notifyer 
+
+curl -X POST http://localhost:8081/api/v1/leads \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "company": "Acme Carpentry LLC",
+    "message": "Looking to automate our customer intake emails and integrate a custom dashboard workflow.",
+    "budget": 2500.00,
+    "timeline": "3 weeks",
+    "created_at": "2026-10-15T18:38:00Z"
+  }'
+
+
+
+  # this is suggeted buidl order 
+
+              Schema, tenants, and the Provider interface, with River set up.
+              Inbound-address provider end to end (ingest, store, process, draft). This is your launch path.
+              Gmail OAuth, watch, history sync, reconciliation, and renewal jobs, plus token-failure handling.
+              Drafts in the user’s mailbox, then approval UI, then send.
+              Follow-up scheduler with cancel-on-reply.
+              Microsoft Graph.
+              Observability, rate limiting, and load tests with a few thousand fake mailboxes, then onboard real users in small batches.
+
+
 
 
 
